@@ -52,17 +52,16 @@
         
         <button id="btnAdmin" onclick="checkPassword()">관리자 페이지 접속 (🔒)</button>
     </div>
-
-    <script>
+        <script>
         function checkPassword() {
-            // 알림창을 띄워 비밀번호를 입력받습니다.
             const password = prompt("관리자 비밀번호를 입력하세요:");
             
-            // ★ 여기에 원하는 비밀번호를 적어주세요! (현재는 0000)
-            if (password === "0702") {
-                location.href = "admin.html"; // 비밀번호가 맞으면 관리자 페이지로 이동
+            if (password === "0000") {
+                // 🔑 비밀번호가 맞으면 브라우저에 'adminTicket'이라는 입장권을 저장합니다.
+                sessionStorage.setItem("adminTicket", "true");
+                location.href = "admin.html"; 
             } else if (password !== null) {
-                alert("비밀번호가 틀렸습니다."); // 틀리면 경고창 띄움
+                alert("비밀번호가 틀렸습니다."); 
             }
         }
     </script>
