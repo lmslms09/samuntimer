@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타이머 시스템 메인</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            background: #ffffff; 
+            color: #000000; 
+            padding-top: 10%; 
+            margin: 0; 
+        }
+        h1 { 
+            font-size: 36px; 
+            margin-bottom: 40px; 
+        }
+        .btn-container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        button { 
+            font-size: 24px; 
+            padding: 20px 40px; 
+            width: 350px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.2s; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        #btnTotal { background: #2196F3; color: #ffffff; }
+        #btnTotal:hover { background: #0b7dda; }
+        
+        #btnLap { background: #FF9800; color: #ffffff; }
+        #btnLap:hover { background: #e68a00; }
+        
+        #btnAdmin { background: #000000; color: #ffffff; border: 2px solid #000; }
+        #btnAdmin:hover { background: #333333; }
+    </style>
+</head>
+<body>
+    <h1>타이머 통합 시스템</h1>
+    <div class="btn-container">
+        <button id="btnTotal" onclick="location.href='total.html'">전체 시간 화면 열기</button>
+        <button id="btnLap" onclick="location.href='lap.html'">랩 타임 화면 열기</button>
+        
+        <button id="btnAdmin" onclick="checkPassword()">관리자 페이지 접속 (🔒)</button>
+    </div>
+
+    <script>
+        function checkPassword() {
+            // 알림창을 띄워 비밀번호를 입력받습니다.
+            const password = prompt("관리자 비밀번호를 입력하세요:");
+            
+            // ★ 여기에 원하는 비밀번호를 적어주세요! (현재는 0000)
+            if (password === "0702") {
+                location.href = "admin.html"; // 비밀번호가 맞으면 관리자 페이지로 이동
+            } else if (password !== null) {
+                alert("비밀번호가 틀렸습니다."); // 틀리면 경고창 띄움
+            }
+        }
+    </script>
+</body>
+</html>
