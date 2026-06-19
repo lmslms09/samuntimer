@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>타이머 관리자</title>
+    <script>
+        // 만약 'adminTicket'이라는 입장권이 없다면?
+        if (sessionStorage.getItem("adminTicket") !== "true") {
+            alert("정상적인 접근이 아닙니다. 메인 페이지를 통해 접속해주세요.");
+            // 뒤로가기를 못하도록 아예 메인 페이지로 덮어씌워 쫓아냅니다.
+            window.location.replace("index.html"); 
+        }
+    </script>
+    </head>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
