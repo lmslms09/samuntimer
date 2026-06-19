@@ -52,18 +52,31 @@
         
         <button id="btnAdmin" onclick="checkPassword()">관리자 페이지 접속 (🔒)</button>
     </div>
-        <script>
+            <script>
+        // 🔒 원본 비밀번호를 숨기기 위한 해시(암호화) 함수
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = (hash << 5) - hash + char;
+                hash = hash & hash; // 32비트 정수로 변환
+            }
+            return hash;
+        }
+
         function checkPassword() {
             const password = prompt("관리자 비밀번호를 입력하세요:");
             
-            if (password === "0702") {
-                // 🔑 비밀번호가 맞으면 브라우저에 'adminTicket'이라는 입장권을 저장합니다.
+            // 취소 버튼을 누른 경우 아무 동작도 하지 않음
+            if (password === null) return; 
+            if (simpleHash(password) === 1484361) {
                 sessionStorage.setItem("adminTicket", "true");
                 location.href = "admin.html"; 
-            } else if (password !== null) {
+            } else {
                 alert("비밀번호가 틀렸습니다."); 
             }
         }
     </script>
+
 </body>
 </html>
