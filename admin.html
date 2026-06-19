@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타이머 관리자</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #ffffff; color: #000000; padding-top: 10%; margin: 0; }
+        h1 { margin-bottom: 10px; font-size: 30px; }
+        #totalDisplay { font-size: 90px; font-weight: bold; font-family: monospace; margin: 20px 0; }
+        button { font-size: 24px; padding: 15px 40px; margin: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #startBtn { background: #000000; color: #ffffff; }
+        #startBtn:hover { background: #333333; }
+        #resetBtn { background: #e0e0e0; color: #000000; }
+        #resetBtn:hover { background: #cccccc; }
+    </style>
+</head>
+<body>
+    <h1>타이머 원격 관리자</h1>
+    <div id="totalDisplay">00:00.00</div>
+
+    <button id="startBtn">타이머 시작</button>
+    <button id="resetBtn">초기화</button>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCorDatB1YA2HIjCmyVNedpMxkZab2pylc",
+            authDomain: "econ-e3df6.firebaseapp.com",
+            databaseURL: "https://econ-e3df6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "econ-e3df6",
+            storageBucket: "econ-e3df6.firebasestorage.app",
+            messagingSenderId: "748785961426",
+            appId: "1:748785961426:web:d00e4f352dbf991dc9600b"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const display = document.getElementById('totalDisplay');
+        const TOTAL_MS = 240000; // 4분 = 240초 = 240,000 밀리초
+        let serverOffset = 0;
+        let timerInterval;
+
+        db.ref('.info/serverTimeOffset').on('value', (snapshot) => {
+            serverOffset = snapshot.val() || 0;
+        });
+
+        db.ref('timer').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.startTime) {
+                startTimer(data.startTime);
+            } else {
+                clearInterval(timerInterval);
+                display.innerText = "00:00.00"; 
+            }
+        });
+
+        function startTimer(startTime) {
+            clearInterval(timerInterval);
+            // 0.01초(10ms)마다 화면 갱신
+            timerInterval = setInterval(() => {
+                const exactServerTime = Date.now() + serverOffset;
+                const elapsedMs = exactServerTime - startTime;
+
+                if (elapsedMs <= TOTAL_MS) {
+                    const minutes = String(Math.floor(elapsedMs / 60000)).padStart(2, '0');
+                    const seconds = String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0');
+                    const milliseconds = String(Math.floor((elapsedMs % 1000) / 10)).padStart(2, '0');
+                    display.innerText = `${minutes}:${seconds}.${milliseconds}`;
+                } else {
+                    display.innerText = "04:00.00"; 
+                    clearInterval(timerInterval);
+                }
+            }, 10);
+        }
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            db.ref('timer').set({
+                startTime: firebase.database.ServerValue.TIMESTAMP
+            });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            db.ref('timer').remove();
+        });
+    </script>
+</body>
+</html>
