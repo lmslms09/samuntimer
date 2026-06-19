@@ -53,13 +53,12 @@
         <button id="btnAdmin" onclick="checkPassword()">관리자 페이지 접속 (🔒)</button>
     </div>
             <script>
-        // 🔒 원본 비밀번호를 숨기기 위한 해시(암호화) 함수
         function simpleHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
                 const char = str.charCodeAt(i);
                 hash = (hash << 5) - hash + char;
-                hash = hash & hash; // 32비트 정수로 변환
+                hash = hash & hash;
             }
             return hash;
         }
