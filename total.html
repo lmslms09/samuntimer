@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>전체 타이머</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { background: #ffffff; color: #000000; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        /* 숫자가 길어져서 폰트 크기를 조금 줄임 */
+        #totalDisplay { font-size: 20vw; font-weight: bold; line-height: 1; }
+    </style>
+</head>
+<body>
+    <div id="totalDisplay">00:00.00</div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCorDatB1YA2HIjCmyVNedpMxkZab2pylc",
+            authDomain: "econ-e3df6.firebaseapp.com",
+            databaseURL: "https://econ-e3df6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "econ-e3df6",
+            storageBucket: "econ-e3df6.firebasestorage.app",
+            messagingSenderId: "748785961426",
+            appId: "1:748785961426:web:d00e4f352dbf991dc9600b"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const display = document.getElementById('totalDisplay');
+        const TOTAL_MS = 240000; 
+        let serverOffset = 0;
+        let timerInterval;
+
+        db.ref('.info/serverTimeOffset').on('value', (snapshot) => {
+            serverOffset = snapshot.val() || 0;
+        });
+
+        db.ref('timer').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.startTime) {
+                startTimer(data.startTime);
+            } else {
+                clearInterval(timerInterval);
+                display.innerText = "00:00.00";
+            }
+        });
+
+        function startTimer(startTime) {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const exactServerTime = Date.now() + serverOffset;
+                const elapsedMs = exactServerTime - startTime;
+
+                if (elapsedMs <= TOTAL_MS) {
+                    const minutes = String(Math.floor(elapsedMs / 60000)).padStart(2, '0');
+                    const seconds = String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0');
+                    const milliseconds = String(Math.floor((elapsedMs % 1000) / 10)).padStart(2, '0');
+                    display.innerText = `${minutes}:${seconds}.${milliseconds}`;
+                } else {
+                    display.innerText = "04:00.00";
+                    clearInterval(timerInterval);
+                }
+            }, 10); 
+        }
+    </script>
+</body>
+</html>
