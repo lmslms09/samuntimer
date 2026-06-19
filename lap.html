@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>랩 타이머</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { background: #ffffff; color: #000000; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #lapDisplay { font-size: 25vw; font-weight: bold; font-family: monospace; line-height: 0.9; }
+        #totalContainer { font-size: 4vw; color: #555555; margin-top: 20px; font-weight: bold; }
+        #totalDisplay { font-family: monospace; color: #000000; }
+    </style>
+</head>
+<body>
+    <div id="lapDisplay">00.00</div>
+    <div id="totalContainer">전체 진행 시간 - <span id="totalDisplay">00:00.00</span></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCorDatB1YA2HIjCmyVNedpMxkZab2pylc",
+            authDomain: "econ-e3df6.firebaseapp.com",
+            databaseURL: "https://econ-e3df6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "econ-e3df6",
+            storageBucket: "econ-e3df6.firebasestorage.app",
+            messagingSenderId: "748785961426",
+            appId: "1:748785961426:web:d00e4f352dbf991dc9600b"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const lapDisplay = document.getElementById('lapDisplay');
+        const totalDisplay = document.getElementById('totalDisplay');
+        
+        const TOTAL_MS = 240000; // 4분
+        const LAP_MS = 30000;    // 30초
+        let serverOffset = 0;
+        let timerInterval;
+
+        db.ref('.info/serverTimeOffset').on('value', (snapshot) => {
+            serverOffset = snapshot.val() || 0;
+        });
+
+        db.ref('timer').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.startTime) {
+                startTimer(data.startTime);
+            } else {
+                clearInterval(timerInterval);
+                lapDisplay.innerText = "00.00";
+                totalDisplay.innerText = "00:00.00";
+            }
+        });
+
+        function startTimer(startTime) {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const exactServerTime = Date.now() + serverOffset;
+                const elapsedMs = exactServerTime - startTime;
+
+                if (elapsedMs <= TOTAL_MS) {
+                    // 전체 시간 계산
+                    const totalMin = String(Math.floor(elapsedMs / 60000)).padStart(2, '0');
+                    const totalSec = String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0');
+                    const totalMs = String(Math.floor((elapsedMs % 1000) / 10)).padStart(2, '0');
+                    totalDisplay.innerText = `${totalMin}:${totalSec}.${totalMs}`;
+
+                    // 랩 타임 계산 (00.00 -> 29.99 반복)
+                    const lapElapsedMs = elapsedMs % LAP_MS;
+                    const lapSec = String(Math.floor(lapElapsedMs / 1000)).padStart(2, '0');
+                    const lapMs = String(Math.floor((lapElapsedMs % 1000) / 10)).padStart(2, '0');
+                    lapDisplay.innerText = `${lapSec}.${lapMs}`;
+                } else {
+                    lapDisplay.innerText = "00.00";
+                    totalDisplay.innerText = "04:00.00";
+                    clearInterval(timerInterval);
+                }
+            }, 10);
+        }
+    </script>
+</body>
+</html>
